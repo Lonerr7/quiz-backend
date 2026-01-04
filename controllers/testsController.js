@@ -1,9 +1,12 @@
 const crypto = require('crypto');
 const fs = require('fs');
+const Test = require('../model/TestModel');
 
 const tests = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/tests.json`, 'utf-8'));
 
-exports.getAllTests = (req, res) => {
+exports.getAllTests = async (req, res) => {
+  const tests = await Test.find({});
+
   res.status(200).json({
     status: 'success',
     results: tests.length,

@@ -4,7 +4,6 @@ const morgan = require('morgan');
 const BASE_URL = '/api/v1';
 
 const app = express();
-const a = 1;
 
 // Middlewares
 if (process.env.NODE_ENV === 'development') {
