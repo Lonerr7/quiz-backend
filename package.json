@@ -1,0 +1,24 @@
+{
+  "name": "quiz-backend",
+  "version": "1.0.0",
+  "description": "backend for quiz app",
+  "license": "ISC",
+  "author": "nic3guy",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "start": "SET NODE_ENV=development&&nodemon server.js",
+    "start:prod": "SET NODE_ENV=production&&nodemon server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^4.22.1",
+    "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-promise": "^7.2.1"
+  }
+}
