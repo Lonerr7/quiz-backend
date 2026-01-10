@@ -1,75 +1,83 @@
-const crypto = require('crypto');
-const fs = require('fs');
+const Test = require('../model/TestModel');
 
-const TESTS_FILEPATH = `${__dirname}/../dev-data/tests.json`;
-const tests = JSON.parse(fs.readFileSync(TESTS_FILEPATH, 'utf-8'));
+exports.createTest = async (req, res) => {
+  try {
+    const {name, description, questions} = req.body;
 
-exports.checkBody = (req, res, next) => {
-  const {name, questions} = req.body;
-  if (!name || !questions?.length) {
-    res.status(400).json({
-      status: 'fail',
-      message: 'Please provide correct data'
+    const newTest = await Test.create({
+      name,
+      description,
+      questions
     });
-    return;
-  }
-  next();
-};
-exports.createTest = (req, res) => {
-  const id = crypto.randomUUID();
 
-  const newTest = {
-    id,
-    createdAt: new Date().toISOString(),
-    ...req.body
-  };
-
-  tests.push(newTest);
-  fs.writeFile(TESTS_FILEPATH, JSON.stringify(tests), (err) => {
     res.status(201).json({
       status: 'success',
       data: {
         test: newTest
       }
-    });
-  });
+    })
+  } catch (err) {
+    console.log(err);
 
-  // res.send('Done');
-
-  res.status(201).json({
-    status: 'success',
-    data: {
-      test: newTest
-    }
-  })
+    res.status(400).json({
+      status: 'fail',
+      message: `${err._message}`,
+      error: err
+    })
+  }
 };
 
-exports.editTest = (req, res) => {
-  const {id} = req.params;
+exports.getTestById = async (req, res) => {
+  try {
+    const test = await Test.findById(req.params.id).select('+questions +questions.correctAnswer');
 
-  // Логика обновления теста
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      test: 'updatedTest'
-    }
-  })
-};
-
-exports.deleteTest = (req, res) => {
-  const {id} = req.params;
-
-  if (!id) {
+    res.status(200).json({
+      status: 'success',
+      data: {
+        test
+      }
+    })
+  } catch (err) {
     res.status(404).json({
       status: 'fail',
-      message: 'Invalid ID'
-    })
-    return;
+      message: err
+    });
   }
+};
 
-  res.status(204).json({
-    status: 'success',
-    data: null
-  })
+exports.editTest = async (req, res) => {
+  try {
+    const newTest = await Test.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    }).select('+questions +questions.correctAnswer');
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        test: newTest
+      }
+    })
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err
+    })
+  }
+};
+
+exports.deleteTest = async (req, res) => {
+  try {
+    await Test.findByIdAndDelete(req.params.id);
+
+    res.status(204).json({
+      status: 'success',
+      data: null
+    })
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      error: err
+    })
+  }
 };
