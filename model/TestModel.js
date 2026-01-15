@@ -4,17 +4,27 @@ const questionSchema = require('./QuestionModel');
 const testSchema = new Schema({
   name: {
     type: String,
-    required: true,
+    required: [true, 'У теста должно быть название'],
     unique: true,
+    trim: true,
+    minLength: [3, 'Название теста должно быть более 2 символов'],
+    maxLength: [51, 'Название теста не может быть более 50 символов']
   },
-  description: String,
+  description: {
+    type: String,
+    trim: true
+  },
   questions: {
     type: [questionSchema],
     select: false,
     validate: {
       validator: (questions) => questions.length,
-      message: 'Questions must not be empty',
+      message: 'Тест не может быть без вопросов',
     }
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now(),
   }
 });
 

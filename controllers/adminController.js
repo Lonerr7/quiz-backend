@@ -1,83 +1,67 @@
 const Test = require('../model/TestModel');
+const catchAsync = require('../helpers/utils/catchAsync');
+const AppError = require('../helpers/classes/AppError');
 
-exports.createTest = async (req, res) => {
-  try {
-    const {name, description, questions} = req.body;
+exports.createTest = catchAsync(async (req, res) => {
+  const {name, description, questions} = req.body;
 
-    const newTest = await Test.create({
-      name,
-      description,
-      questions
-    });
+  const newTest = await Test.create({
+    name,
+    description,
+    questions
+  });
 
-    res.status(201).json({
-      status: 'success',
-      data: {
-        test: newTest
-      }
-    })
-  } catch (err) {
-    console.log(err);
+  res.status(201).json({
+    status: 'success',
+    data: {
+      test: newTest
+    }
+  })
+});
 
-    res.status(400).json({
-      status: 'fail',
-      message: `${err._message}`,
-      error: err
-    })
+exports.getTestById = catchAsync(async (req, res, next) => {
+  const test = await Test.findById(req.params.id).select('+questions +questions.correctAnswer');
+
+  if (!test) {
+    return next(new AppError('No test found with that ID', 404));
   }
-};
 
-exports.getTestById = async (req, res) => {
-  try {
-    const test = await Test.findById(req.params.id).select('+questions +questions.correctAnswer');
+  res.status(200).json({
+    status: 'success',
+    data: {
+      test
+    }
+  });
+});
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        test
-      }
-    })
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err
-    });
+exports.editTest = catchAsync(async (req, res, next) => {
+  const newTest = await Test.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true
+  }).select('+questions +questions.correctAnswer');
+
+
+  if (!newTest) {
+    return next(new AppError('No test found with that ID', 404));
   }
-};
 
-exports.editTest = async (req, res) => {
-  try {
-    const newTest = await Test.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    }).select('+questions +questions.correctAnswer');
+  res.status(200).json({
+    status: 'success',
+    data: {
+      test: newTest
+    }
+  });
+});
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        test: newTest
-      }
-    })
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err
-    })
+exports.deleteTest = catchAsync(async (req, res, next) => {
+  const deletedTest = await Test.findByIdAndDelete(req.params.id);
+
+  if (!deletedTest) {
+    return next(new AppError('No test found with that ID', 404));
   }
-};
 
-exports.deleteTest = async (req, res) => {
-  try {
-    await Test.findByIdAndDelete(req.params.id);
-
-    res.status(204).json({
-      status: 'success',
-      data: null
-    })
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      error: err
-    })
-  }
-};
+  res.status(204).json({
+    status: 'success',
+    data: null
+  });
+});

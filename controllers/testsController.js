@@ -1,52 +1,38 @@
 const Test = require('../model/TestModel');
+const catchAsync = require('../helpers/utils/catchAsync');
+const AppError = require('../helpers/classes/AppError');
 
-exports.getAllTests = async (req, res) => {
-  try {
-    const tests = await Test.find({});
+exports.getAllTests = catchAsync(async (req, res) => {
+  const tests = await Test.find({});
 
-    res.status(200).json({
-      status: 'success',
-      results: tests.length,
-      data: {
-        tests
-      }
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err
-    })
+  res.status(200).json({
+    status: 'success',
+    results: tests.length,
+    data: {
+      tests
+    }
+  });
+});
+
+exports.getTestById = catchAsync(async (req, res, next) => {
+  const test = await Test.findById(req.params.id).select('+questions');
+
+  if (!test) {
+    return next(new AppError('No test found with that Id', 404));
   }
-};
 
-exports.getTestById = async (req, res) => {
-  try {
-    const test = await Test.findById(req.params.id).select('+questions');
+  res.status(200).json({
+    status: 'success',
+    data: {
+      test
+    }
+  });
+});
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        test
-      }
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err,
-    })
-  }
-};
+exports.submitTest = catchAsync(async (req, res) => {
+  const subbmitedTest = req.body;
 
-exports.submitTest = (req, res) => {
-  const {id} = req.params;
 
-  if (!id) {
-    res.status(404).json({
-      status: 'fail',
-      message: 'No test found'
-    });
-    return;
-  }
 
   // Какой тут брать статус код??
   res.status(200).json({
@@ -56,4 +42,4 @@ exports.submitTest = (req, res) => {
     // вернуть ответ в виде полного теста с доп полями для каждого вопроса: isAnswered, isCorrect, userAnswer
     }
   })
-};
+});
