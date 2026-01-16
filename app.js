@@ -3,6 +3,7 @@ const morgan = require('morgan');
 const {isDev} = require('./helpers/utils/getEnvironment');
 const testRouter = require('./routes/testsRoutes');
 const adminRouter = require('./routes/adminRoutes');
+const authRouter = require('./routes/authRoutes');
 const AppError = require('./helpers/classes/AppError');
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -18,9 +19,9 @@ if (isDev) {
 app.use(express.json()); // чтобы можно было достать тело POST запроса
 
 // Routes
-
 app.use(`${BASE_URL}/tests`, testRouter);
 app.use(`${BASE_URL}/admin/tests`, adminRouter);
+app.use(`${BASE_URL}/auth`, authRouter);
 
 // Wrong endpoint requests global handler
 app.all('*', (req, res, next) => {

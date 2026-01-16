@@ -1,8 +1,21 @@
 const {isDev, isProd} = require('../helpers/utils/getEnvironment');
 const AppError = require('../helpers/classes/AppError');
 
+// Закончил 118 урок
+
 const handleCastErrorDB = (err) => {
   return new AppError(`Invalid ${err.path}: ${err.value}`, 400);
+};
+
+const handleDuplicateFiedlsDB = (err) => {
+  const value = Object.values(err.keyValue).join(', ');
+  return new AppError(`Duplicate field value: ${value}. Please use another one!`, 400);
+}
+
+const handleValidationErrorDB = (err) => {
+  const errors = Object.values(err.errors).map((errObj) => errObj.message).join('. ');
+  const message = `Invalid input data. ${errors}.`;
+  return new AppError(message, 400);
 };
 
 const sendDevError = (err, res) => {
@@ -32,7 +45,8 @@ const sendProdError = (err, res) => {
   console.error('Unoperational Error: ', err);
 }
 
-module.exports = (err, req, res) => {
+// наличие next в аргументах ф-ции обязательно!
+module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
@@ -41,10 +55,11 @@ module.exports = (err, req, res) => {
   } else if (isProd) {
     let error = Object.create(err);
 
-    if (err.name === 'CastError') {
-      error = handleCastErrorDB(err);
-    }
+    if (error.name === 'CastError') error = handleCastErrorDB(err);
+    if (error.code === 11000) error = handleDuplicateFiedlsDB(err);
+    if (error.name === 'ValidationError') error = handleValidationErrorDB(err);
 
     sendProdError(error, res);
   }
+
 };
