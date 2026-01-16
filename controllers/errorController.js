@@ -1,8 +1,6 @@
 const {isDev, isProd} = require('../helpers/utils/getEnvironment');
 const AppError = require('../helpers/classes/AppError');
 
-// Закончил 118 урок
-
 const handleCastErrorDB = (err) => {
   return new AppError(`Invalid ${err.path}: ${err.value}`, 400);
 };
