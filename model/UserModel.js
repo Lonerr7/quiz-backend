@@ -31,7 +31,8 @@ const userSchema = new Schema({
       },
       message: 'Passwords are not the same'
     }
-  }
+  },
+  passwordChangedAt: Date
 });
 
 // hashing passwords (works only on .create() and .save())
@@ -47,6 +48,15 @@ userSchema.pre('save', async function() {
 // Instance methods
 userSchema.methods.isPasswordCorrect = async function(enteredPassword, userPassword) {
   return await bcrypt.compare(enteredPassword, userPassword);
+}
+
+userSchema.methods.isChangedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+    return JWTTimestamp < changedTimestamp;
+  }
+
+  return false;
 }
 
 const User = model('User', userSchema);
