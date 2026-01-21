@@ -29,17 +29,31 @@ exports.getTestById = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.submitTest = catchAsync(async (req, res) => {
-  const subbmitedTest = req.body;
+exports.submitTest = catchAsync(async (req, res, next) => {
+  const {id: submittedTestId, answers} = req.body.test;
+  const dbTest = await Test.findById(submittedTestId).select('+questions +questions.correctAnswer');
 
+  if (!dbTest) {
+    return next(new AppError('Test does not exist', 404));
+  }
 
+  const checkedQuestions = dbTest.questions.reduce((acc, question) => {
+    const convertedQuestion = question.toObject();
+    const userAnswer = answers[convertedQuestion._id];
 
-  // Какой тут брать статус код??
+    const answerInfo = {
+      ...convertedQuestion,
+      userAnswer,
+      isCorrect: userAnswer === convertedQuestion.correctAnswer,
+    };
+    return [...acc, answerInfo];
+  }, []);
+
   res.status(200).json({
     status: 'success',
     data: {
-
-    // вернуть ответ в виде полного теста с доп полями для каждого вопроса: isAnswered, isCorrect, userAnswer
+      testId: dbTest._id,
+      result: checkedQuestions
     }
-  })
+  });
 });

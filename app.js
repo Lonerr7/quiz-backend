@@ -1,5 +1,11 @@
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
+
 const {isDev} = require('./helpers/utils/getEnvironment');
 const testRouter = require('./routes/testsRoutes');
 const adminRouter = require('./routes/adminRoutes');
@@ -11,12 +17,34 @@ const BASE_URL = '/api/v1';
 
 const app = express();
 
-// Middlewares
+// Global Middlewares
+// 1. Set security HTTP Headers
+app.use(helmet());
+
+// 2. Development logging
 if (isDev) {
   app.use(morgan('dev'));
 } // логирование
 
-app.use(express.json()); // чтобы можно было достать тело POST запроса
+// 3. Limit requests from the same IP
+const limiter = rateLimit({
+  limit: 100, // 100 requests max from the same IP in windowMs
+  windowMs: 60 * 60 * 1000, // 1 hour
+  message: 'Too many requests. Try again in 1 hour',
+});
+app.use('/api', limiter);
+
+// 4. Body-parser
+app.use(express.json({limit: '10kb'})); // чтобы можно было достать тело POST запроса
+
+// 5. Data sanitization against NoSQL query injection
+app.use(mongoSanitize());
+
+// 6. Data sanitization against XSS
+app.use(xss());
+
+// 7. Preventing parameter pollution
+app.use(hpp());
 
 // Routes
 app.use(`${BASE_URL}/tests`, testRouter);

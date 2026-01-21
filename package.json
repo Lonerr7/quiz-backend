@@ -8,16 +8,21 @@
   "main": "app.js",
   "scripts": {
     "start": "SET NODE_ENV=development&&nodemon server.js",
-    "start:prod": "SET NODE_ENV=production&&node server.js"
+    "start:prod": "NODE_ENV=production node server.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "dns": "^0.2.2",
     "dotenv": "^17.2.3",
     "express": "^4.22.1",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
+    "hpp": "^0.2.3",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.1",
-    "morgan": "^1.10.1"
+    "morgan": "^1.10.1",
+    "xss-clean": "^0.1.4"
   },
   "devDependencies": {
     "eslint": "^9.39.2",

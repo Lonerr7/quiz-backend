@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.route('/').get(getAllTests);
 router.route('/:id').get(getTestById);
-router.route('/:id/submit').post(submitTest); // тут проверяю выполненный тест
+router.route('/:id/submit').post(submitTest);
 
 module.exports = router;

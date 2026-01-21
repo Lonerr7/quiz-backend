@@ -3,8 +3,9 @@ const catchAsync = require('../helpers/utils/catchAsync');
 const User = require('../model/UserModel');
 const jwt = require('jsonwebtoken');
 const AppError = require('../helpers/classes/AppError');
+const {isProd} = require('../helpers/utils/getEnvironment');
 
-// Закончил 130 урок
+// Закончил 146 урок
 
 const signToken = (userId) => {
   return jwt.sign({id: userId}, process.env.JWT_SECRET, {
@@ -12,19 +13,33 @@ const signToken = (userId) => {
   });
 }
 
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user.id);
+
+  const cookieOptions = {
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+    httpOnly: true, // means that the cookie cannot be accessed or modified by browser in any way (prevent cross site scripting attacks)
+  };
+  if (isProd) cookieOptions.secure = true; // sending cookie via HTTPS in production
+
+  res.cookie('jwt', token, cookieOptions);
+
+  user.password = undefined; // deleting password from response
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user
+    }
+  });
+};
+
 exports.signUp = catchAsync(async (req, res, next) => {
   const {name, password, passwordConfirm, passwordChangedAt} = req.body;
   const newUser = await User.create({name, password, passwordConfirm, passwordChangedAt});
 
-  const token = signToken(newUser._id);
-
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    }
-  });
+  createSendToken(newUser, 201, res);
 });
 
 exports.logIn = catchAsync(async (req, res, next) => {
@@ -43,12 +58,7 @@ exports.logIn = catchAsync(async (req, res, next) => {
   }
 
   // 3. If everything is ok, send token to client
-  const token = signToken(user._id);
-
-  res.status(200).json({
-    status: 'success',
-    token,
-  })
+  createSendToken(user, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -82,3 +92,11 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = user;
   next();
 });
+
+exports.allowTo = (...roles) => (req, res, next) => {
+  if (!roles.includes(req.user.role)) {
+    return next(new AppError("You don't have permission to perform this action", 403));
+  }
+
+  next();
+};

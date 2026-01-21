@@ -1,5 +1,6 @@
 const {Schema, model} = require('mongoose');
 const bcrypt = require('bcryptjs');
+const {USER_ROLES} = require('../config/UserConfig');
 
 const userSchema = new Schema({
   name: {
@@ -10,7 +11,7 @@ const userSchema = new Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
+    enum: [USER_ROLES.USER, USER_ROLES.ADMIN],
     default: 'user',
   },
   password: {
@@ -58,6 +59,5 @@ userSchema.methods.isChangedPasswordAfter = function (JWTTimestamp) {
 
   return false;
 }
-
 const User = model('User', userSchema);
 module.exports = User;
