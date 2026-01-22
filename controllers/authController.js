@@ -5,8 +5,6 @@ const jwt = require('jsonwebtoken');
 const AppError = require('../helpers/classes/AppError');
 const {isProd} = require('../helpers/utils/getEnvironment');
 
-// Закончил 146 урок
-
 const signToken = (userId) => {
   return jwt.sign({id: userId}, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,

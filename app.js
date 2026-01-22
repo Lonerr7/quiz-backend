@@ -10,6 +10,7 @@ const {isDev} = require('./helpers/utils/getEnvironment');
 const testRouter = require('./routes/testsRoutes');
 const adminRouter = require('./routes/adminRoutes');
 const authRouter = require('./routes/authRoutes');
+const userRouter = require('./routes/userRoutes');
 const AppError = require('./helpers/classes/AppError');
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -50,6 +51,7 @@ app.use(hpp());
 app.use(`${BASE_URL}/tests`, testRouter);
 app.use(`${BASE_URL}/admin/tests`, adminRouter);
 app.use(`${BASE_URL}/auth`, authRouter);
+app.use(`${BASE_URL}/users`, userRouter);
 
 // Wrong endpoint requests global handler
 app.all('*', (req, res, next) => {
