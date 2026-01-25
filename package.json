@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
     "dns": "^0.2.2",
     "dotenv": "^17.2.3",
     "express": "^4.22.1",

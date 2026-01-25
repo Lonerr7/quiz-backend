@@ -1,7 +1,7 @@
 const {promisify} = require('util');
+const jwt = require('jsonwebtoken');
 const catchAsync = require('../helpers/utils/catchAsync');
 const User = require('../model/UserModel');
-const jwt = require('jsonwebtoken');
 const AppError = require('../helpers/classes/AppError');
 const {isProd} = require('../helpers/utils/getEnvironment');
 
@@ -15,10 +15,15 @@ const createSendToken = (user, statusCode, res) => {
   const token = signToken(user.id);
 
   const cookieOptions = {
-    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+    expires: new Date(Date.now() + Number(process.env.JWT_COOKIE_EXPIRES_IN)* 24 * 60 * 60 * 1000),
     httpOnly: true, // means that the cookie cannot be accessed or modified by browser in any way (prevent cross site scripting attacks)
+    sameSite: 'lax', // helps to protect against CSRF attacks, allows sending cookies with same-site requests and with top-level navigation to your site
   };
-  if (isProd) cookieOptions.secure = true; // sending cookie via HTTPS in production
+  // sending cookie via HTTPS in production
+  if (isProd) {
+    cookieOptions.sameSite = 'none';   
+    cookieOptions.secure = true;
+  } 
 
   res.cookie('jwt', token, cookieOptions);
 
@@ -41,7 +46,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
 });
 
 exports.logIn = catchAsync(async (req, res, next) => {
-  const {name, password, passwordConfirm} = req.body;
+  const {name, password} = req.body;
 
   // 1. Check if email and password exist
   if (!name || !password) {
@@ -65,6 +70,8 @@ exports.protect = catchAsync(async (req, res, next) => {
   let token = null;
   if (authHeader && authHeader.startsWith('Bearer')) {
     token = authHeader.split(' ')[1];
+  } else if (req.cookies && req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
 
   if (!token) {

@@ -5,6 +5,8 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const {isDev} = require('./helpers/utils/getEnvironment');
 const testRouter = require('./routes/testsRoutes');
@@ -26,6 +28,17 @@ app.use(helmet());
 if (isDev) {
   app.use(morgan('dev'));
 } // логирование
+
+// Implementing CORS
+app.use(cors({
+  origin: isDev ? 'http://localhost:5173' : '',
+  credentials: true,
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'], // Добавь OPTIONS
+  exposedHeaders: ['set-cookie'] 
+}))
+
+// Cookie parser
+app.use(cookieParser());
 
 // 3. Limit requests from the same IP
 const limiter = rateLimit({
