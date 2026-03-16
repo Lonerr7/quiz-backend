@@ -32,7 +32,7 @@ exports.getTestById = catchAsync(async (req, res, next) => {
 
 exports.submitTest = catchAsync(async (req, res, next) => {
   const submittedTestId = req.params.id;
-  const {answers} = req.body;
+  const {answers, name} = req.body;
   const dbTest = await Test.findById(submittedTestId).select('+questions +questions.correctAnswer');
 
   if (!dbTest) {
@@ -58,8 +58,15 @@ exports.submitTest = catchAsync(async (req, res, next) => {
     return acc;
   }, 0);
 
+  console.log(checkedQuestions);
+
   const Mail = new Email();
-  await Mail.send();
+  Mail.send({
+    testName: dbTest.name,
+    userName: name,
+    checkedQuestions,
+    correctAnswersCount
+  }).catch(err => console.error('Email error:', err));
 
   res.status(200).json({
     status: 'success',
