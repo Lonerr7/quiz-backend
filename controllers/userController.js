@@ -6,6 +6,8 @@ exports.getMe = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    user: me,
+    data: {
+      user: me,
+    },
   });
 })

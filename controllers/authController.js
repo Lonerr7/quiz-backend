@@ -64,6 +64,15 @@ exports.logIn = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
+exports.logOut = catchAsync(async (req, res, next) => {
+  res.clearCookie('jwt');
+
+  res.status(200).json({
+    status: 'success',
+    user: null,
+  });
+});
+
 exports.protect = catchAsync(async (req, res, next) => {
   // 1. Get token and check if it's there
   const authHeader = req.headers.authorization;
@@ -80,6 +89,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 2. Verify the token (Verification)
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  console.log(decoded);
 
   // 3. If verification is successful -> check if user still exists
   const user = await User.findById(decoded.id);

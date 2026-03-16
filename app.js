@@ -33,8 +33,7 @@ if (isDev) {
 app.use(cors({
   origin: isDev ? 'http://localhost:5173' : '',
   credentials: true,
-  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'], // Добавь OPTIONS
-  exposedHeaders: ['set-cookie'] 
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
 }))
 
 // Cookie parser
@@ -42,7 +41,7 @@ app.use(cookieParser());
 
 // 3. Limit requests from the same IP
 const limiter = rateLimit({
-  limit: 100, // 100 requests max from the same IP in windowMs
+  limit: 1000, // 100 requests max from the same IP in windowMs
   windowMs: 60 * 60 * 1000, // 1 hour
   message: 'Too many requests. Try again in 1 hour',
 });

@@ -5,18 +5,24 @@ const AppError = require('../helpers/classes/AppError');
 exports.createTest = catchAsync(async (req, res) => {
   const {name, description, questions} = req.body;
 
-  const newTest = await Test.create({
+  const createTestDraft = {
     name,
     description,
     questions
-  });
+  };
+
+  if (!description) {
+    delete createTestDraft.description;
+  }
+
+  const newTest = await Test.create(createTestDraft);
 
   res.status(201).json({
     status: 'success',
     data: {
       test: newTest
     }
-  })
+  });
 });
 
 exports.getTestById = catchAsync(async (req, res, next) => {

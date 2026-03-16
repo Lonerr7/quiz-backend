@@ -6,6 +6,10 @@
   "author": "nic3guy",
   "type": "commonjs",
   "main": "app.js",
+  "engines": {
+    "node": "22.x",
+    "npm": "11.x"
+  },
   "scripts": {
     "start": "SET NODE_ENV=development&&nodemon server.js",
     "start:prod": "NODE_ENV=production node server.js"
@@ -24,6 +28,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.1",
     "morgan": "^1.10.1",
+    "nodemailer": "^8.0.2",
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
