@@ -65,7 +65,13 @@ exports.logIn = catchAsync(async (req, res, next) => {
 });
 
 exports.logOut = catchAsync(async (req, res, next) => {
-  res.clearCookie('jwt');
+  res.clearCookie('jwt', {
+    httpOnly: true,
+    secure: true, // Должно совпадать с тем, как ты ставил куку
+    sameSite: 'none', // Если фронт и бэк на разных доменах, это критично
+    path: '/',        // Часто забывают про path, по умолчанию он '/'
+    // domain: 'yourdomain.com' // Если ты указывал домен при установке, его нужно указать и здесь
+  });
 
   res.status(200).json({
     status: 'success',
