@@ -1,0 +1,37 @@
+doctype html
+html
+  head
+    meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
+    style.
+      .body-wrap { background-color: #F9FBFC; width: 100%; padding: 20px; }
+      .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #E2E8F0; }
+      .header { background-color: #0D9488; color: #ffffff; padding: 25px; text-align: center; border-radius: 12px 12px 0 0; }
+      .content { padding: 25px; }
+      .test-card { border: 1px solid #E2E8F0; border-radius: 10px; padding: 15px; margin-bottom: 15px; background-color: #ffffff; }
+      .q-text { font-weight: bold; font-size: 16px; color: #1E293B; margin-bottom: 12px; }
+      .opt { padding: 10px; font-size: 14px; border-radius: 6px; margin: 5px 0; border: 1px solid transparent; }
+      .correct { background-color: #DCFCE7; color: #166534; border-color: #BBF7D0; font-weight: bold; }
+      .wrong { background-color: #FEE2E2; color: #991B1B; border-color: #FECACA; font-weight: bold; }
+      .muted { color: #64748B; background-color: #F8FAFC; border-color: #F1F5F9; }
+
+  body
+    .body-wrap
+      .container
+        .header
+          h2(style="margin:0") #{testName}
+        .content
+          p(style="font-size: 16px") Студент: #[strong #{userName}]
+          h3(style="color: #0D9488") Результат: #{correctAnswersCount} из #{checkedQuestions.length}
+          
+          each q, idx in checkedQuestions
+            .test-card(style=q.isCorrect ? "border-left: 5px solid #10B981" : "border-left: 5px solid #F43F5E")
+              .q-text #{idx + 1}. #{q.text}
+              each opt, i in q.options
+                - const isUser = i === q.userAnswer
+                - const isCorrect = i === q.correctAnswer
+                if isCorrect
+                  .opt.correct ✓ #{opt} (Правильный ответ)
+                else if isUser && !q.isCorrect
+                  .opt.wrong ✕ #{opt} (Ваш выбор)
+                else
+                  .opt.muted #{opt}

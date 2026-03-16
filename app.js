@@ -31,7 +31,7 @@ if (isDev) {
 
 // Implementing CORS
 app.use(cors({
-  origin: isDev ? 'http://localhost:5173' : '',
+  origin: isDev ? 'http://localhost:5173' : process.env.PRODUCTION_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
 }))
