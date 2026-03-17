@@ -6,25 +6,18 @@ const path = require('path');
 module.exports = class Email {
   newTransport() {
     return nodemailer.createTransport({
-      service: 'gmail',
-      secure: true,
+      host: process.env.MAIL_HOST,
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.MAIL_FROM,
         pass: process.env.GOOGLE_APP_PASSWORD,
+      },
+      tls: {
+        rejectUnauthorized: false,
       }
     });
   }
-
-  // async send({testName, userName}) {
-  //   const mailOptions = {
-  //     from: process.env.MAIL_FROM,
-  //     to: process.env.MAIL_TO,
-  //     subject: `Новый пройденный тест: ${testName}. Ученик: ${userName}`,
-  //     text: "Только что был пройден тест",
-  //   };
-
-  //   await this.newTransport().sendMail(mailOptions);
-  // }
 
   async send(templateData) {
     const { testName, userName } = templateData;

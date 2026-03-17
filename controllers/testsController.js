@@ -64,7 +64,7 @@ exports.submitTest = catchAsync(async (req, res, next) => {
     userName: name,
     checkedQuestions,
     correctAnswersCount
-  }).catch(err => console.error('Email error:', err));
+  });
 
   res.status(200).json({
     status: 'success',
