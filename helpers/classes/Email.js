@@ -20,7 +20,7 @@ module.exports = class Email {
   }
 
   async send(templateData) {
-    const { testName, userName } = templateData;
+    const { testName } = templateData;
 
     // Рендер и инлайнинг стилей
     const html = pug.renderFile(
@@ -32,9 +32,8 @@ module.exports = class Email {
     const mailOptions = {
       from: process.env.MAIL_FROM,
       to: process.env.MAIL_TO,
-      subject: `Результат: ${testName} — ${userName}`,
+      subject: `Был пройден тест: ${testName}.`,
       html: inlinedHtml,
-      text: `Тест: ${testName}. Ученик: ${userName}. Результат: ${templateData.correctAnswersCount}/${templateData.checkedQuestions.length}`
     };
 
     await this.newTransport().sendMail(mailOptions);
