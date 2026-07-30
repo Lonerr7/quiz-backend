@@ -16,8 +16,8 @@ const createSendToken = (user, statusCode, res) => {
 
   const cookieOptions = {
     expires: new Date(Date.now() + Number(process.env.JWT_COOKIE_EXPIRES_IN)* 24 * 60 * 60 * 1000),
-    httpOnly: true, // means that the cookie cannot be accessed or modified by browser in any way (prevent cross site scripting attacks)
-    sameSite: 'lax', // helps to protect against CSRF attacks, allows sending cookies with same-site requests and with top-level navigation to your site
+    httpOnly: true,
+    sameSite: 'lax',
   };
   // sending cookie via HTTPS in production
   if (isProd) {
@@ -27,7 +27,7 @@ const createSendToken = (user, statusCode, res) => {
 
   res.cookie('jwt', token, cookieOptions);
 
-  user.password = undefined; // deleting password from response
+  user.password = undefined;
 
   res.status(statusCode).json({
     status: 'success',
@@ -67,10 +67,9 @@ exports.logIn = catchAsync(async (req, res, next) => {
 exports.logOut = catchAsync(async (req, res, next) => {
   res.clearCookie('jwt', {
     httpOnly: true,
-    secure: true, // Должно совпадать с тем, как ты ставил куку
-    sameSite: 'none', // Если фронт и бэк на разных доменах, это критично
-    path: '/',        // Часто забывают про path, по умолчанию он '/'
-    // domain: 'yourdomain.com' // Если ты указывал домен при установке, его нужно указать и здесь
+    secure: true,
+    sameSite: 'none',
+    path: '/',
   });
 
   res.status(200).json({

@@ -60,8 +60,9 @@ exports.submitTest = catchAsync(async (req, res, next) => {
 
   const Mail = new Email();
   await Mail.send({
-    testName: dbTest.name,
     userName: name,
+    testName: dbTest.name,
+    testDescription: dbTest.description || undefined,
     checkedQuestions,
     correctAnswersCount
   });

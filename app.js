@@ -7,8 +7,9 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const connectToDB = require('./helpers/utils/connectToDB');
 
-const {isDev} = require('./helpers/utils/getEnvironment');
+const { isDev } = require('./helpers/utils/getEnvironment');
 const testRouter = require('./routes/testsRoutes');
 const adminRouter = require('./routes/adminRoutes');
 const authRouter = require('./routes/authRoutes');
@@ -30,11 +31,13 @@ if (isDev) {
 } // логирование
 
 // Implementing CORS
-app.use(cors({
-  origin: isDev ? 'http://localhost:5173' : process.env.PRODUCTION_URL,
-  credentials: true,
-  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-}))
+app.use(
+  cors({
+    origin: isDev ? 'http://localhost:5173' : process.env.PRODUCTION_URL,
+    credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+  }),
+);
 
 // Cookie parser
 app.use(cookieParser());
@@ -48,7 +51,7 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 // 4. Body-parser
-app.use(express.json({limit: '10kb'})); // чтобы можно было достать тело POST запроса
+app.use(express.json({ limit: '10kb' })); // чтобы можно было достать тело POST запроса
 
 // 5. Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -58,6 +61,19 @@ app.use(xss());
 
 // 7. Preventing parameter pollution
 app.use(hpp());
+
+// Connecting to DB
+app.use(async (req, res, next) => {
+  try {
+    await connectToDB();
+    next();
+  } catch (err) {
+    console.error('Database connection error:', err);
+    res
+      .status(500)
+      .json({ status: 'error', message: 'Database connection failed' });
+  }
+});
 
 // Routes
 app.use(`${BASE_URL}/tests`, testRouter);
