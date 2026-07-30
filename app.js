@@ -22,14 +22,13 @@ const BASE_URL = '/api/v1';
 const app = express();
 
 // Implementing CORS
-app.use(
-  cors({
-    origin: isDev ? 'http://localhost:5173' : process.env.PRODUCTION_URL,
-    credentials: true,
-    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  }),
-);
+const corsOptions = {
+  origin: isDev ? 'http://localhost:5173' : process.env.PRODUCTION_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // Global Middlewares
