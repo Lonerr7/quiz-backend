@@ -23,7 +23,8 @@ const app = express();
 
 // Implementing CORS
 const corsOptions = {
-  origin: isDev ? 'http://localhost:5173' : process.env.PRODUCTION_URL,
+  // origin: isDev ? 'http://localhost:5173' : process.env.PRODUCTION_URL,
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
