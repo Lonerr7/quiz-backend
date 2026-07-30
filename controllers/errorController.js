@@ -1,4 +1,4 @@
-const {isDev, isProd} = require('../helpers/utils/getEnvironment');
+const { isDev, isProd } = require('../helpers/utils/getEnvironment');
 const AppError = require('../helpers/classes/AppError');
 
 const handleCastErrorDB = (err) => {
@@ -7,27 +7,34 @@ const handleCastErrorDB = (err) => {
 
 const handleDuplicateFiedlsDB = (err) => {
   const value = Object.values(err.keyValue).join(', ');
-  return new AppError(`Duplicate field value: ${value}. Please use another one!`, 400);
-}
+  return new AppError(
+    `Duplicate field value: ${value}. Please use another one!`,
+    400,
+  );
+};
 
 const handleValidationErrorDB = (err) => {
-  const errors = Object.values(err.errors).map((errObj) => errObj.message).join('. ');
+  const errors = Object.values(err.errors)
+    .map((errObj) => errObj.message)
+    .join('. ');
   const message = `Invalid input data. ${errors}.`;
   return new AppError(message, 400);
 };
 
-const handleJWTError = () => new AppError('Invalid token. Please log in again', 401);
+const handleJWTError = () =>
+  new AppError('Invalid token. Please log in again', 401);
 
-const handleJWTExpiredError = () => new AppError('Expired token. Please log in again', 401);
+const handleJWTExpiredError = () =>
+  new AppError('Expired token. Please log in again', 401);
 
 const sendDevError = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
     message: err.message,
     stack: err.stack,
-    error: err
+    error: err,
   });
-}
+};
 
 const sendProdError = (err, res) => {
   // Operational, trusted error: sending message to client
@@ -45,12 +52,16 @@ const sendProdError = (err, res) => {
     message: 'Something went wrong! Try again later.',
   });
   console.error('Unoperational Error: ', err);
-}
+};
 
 // наличие next в аргументах ф-ции обязательно!
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
+
+  const origin = isDev ? 'http://localhost:5173' : process.env.PRODUCTION_URL;
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   if (isDev) {
     sendDevError(err, res);
@@ -59,11 +70,11 @@ module.exports = (err, req, res, next) => {
 
     if (error.name === 'CastError') error = handleCastErrorDB(error);
     if (error.code === 11000) error = handleDuplicateFiedlsDB(error);
-    if (error.name === 'ValidationError') error = handleValidationErrorDB(error);
+    if (error.name === 'ValidationError')
+      error = handleValidationErrorDB(error);
     if (error.name === 'JsonWebTokenError') error = handleJWTError();
     if (error.name === 'TokenExpiredError') error = handleJWTExpiredError();
 
     sendProdError(error, res);
   }
-
 };

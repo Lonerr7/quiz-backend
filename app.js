@@ -30,6 +30,7 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
+app.options('*', cors(corsOptions));
 
 // Global Middlewares
 // 1. Set security HTTP Headers
