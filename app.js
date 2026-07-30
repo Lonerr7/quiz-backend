@@ -21,6 +21,16 @@ const BASE_URL = '/api/v1';
 
 const app = express();
 
+// Implementing CORS
+app.use(
+  cors({
+    origin: isDev ? 'http://localhost:5173' : process.env.PRODUCTION_URL,
+    credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }),
+);
+
 // Global Middlewares
 // 1. Set security HTTP Headers
 app.use(helmet());
@@ -29,15 +39,6 @@ app.use(helmet());
 if (isDev) {
   app.use(morgan('dev'));
 } // логирование
-
-// Implementing CORS
-app.use(
-  cors({
-    origin: isDev ? 'http://localhost:5173' : process.env.PRODUCTION_URL,
-    credentials: true,
-    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-  }),
-);
 
 // Cookie parser
 app.use(cookieParser());
